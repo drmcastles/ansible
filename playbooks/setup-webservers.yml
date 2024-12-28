@@ -1,0 +1,81 @@
+---
+- name: Установка и настройка Apache и Nginx
+  hosts: localhost
+  become: yes
+  tasks:
+    
+    # Установка Apache
+    - name: Установить Apache
+      apt:
+        name: apache2
+        state: present
+        update_cache: yes
+
+    # Открыть порт 8080 для Apache
+    - name: Открыть порт 8080 для Apache
+      ufw:
+        rule: allow
+        port: 8080
+        proto: tcp
+
+    # Настроить конфигурацию Apache
+    - name: Настроить Apache
+      copy:
+        src: ./apache-config/000-default.conf
+        dest: /etc/apache2/sites-available/000-default.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    # Создать папку для документов Apache
+    - name: Создать папку для Apache
+      file:
+        path: /var/www/html/apache
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    # Перезапустить Apache
+    - name: Перезапустить Apache
+      service:
+        name: apache2
+        state: restarted
+
+    # Установка Nginx
+    - name: Установить Nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    # Открыть порт 80 для Nginx
+    - name: Открыть порт 80 для Nginx
+      ufw:
+        rule: allow
+        port: 80
+        proto: tcp
+
+    # Настроить конфигурацию Nginx
+    - name: Настроить Nginx
+      copy:
+        src: ./nginx-config/default
+        dest: /etc/nginx/sites-available/default
+        owner: root
+        group: root
+        mode: '0644'
+
+    # Создать папку для документов Nginx
+    - name: Создать папку для Nginx
+      file:
+        path: /var/www/html/nginx
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    # Перезапустить Nginx
+    - name: Перезапустить Nginx
+      service:
+        name: nginx
+        state: restarted
